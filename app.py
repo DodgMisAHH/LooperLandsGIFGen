@@ -2,6 +2,7 @@ import sys
 import os
 from PIL import Image
 from multiprocessing import Pool
+import time
 
 # Asks user to input the paths and returns them
 def get_user_input():
@@ -21,19 +22,20 @@ def get_user_input():
     return bg_file, sprite_sheet_folder
 
 # Define a new function that takes a sprite sheet file as input                                                    
-# and performs the frame division, upscaling, background addition, and GIF creation.                               
-def process_sprite_sheet(sprite_file):                                                                             
-    root, ext = os.path.splitext(sprite_file)                                                                      
-    if ext.lower() not in ['.png', '.jpg', '.jpeg']:  # add or remove file types as needed                         
-        return                                                                                                     
-    gif_filename = root                                                                                            
-    print(gif_filename,'processing...')                                                                            
-    full_path = os.path.join(sprite_sheet_folder, sprite_file)                                                     
-    frames = divide_sprite_sheet(full_path)                                                                        
-    frames = upscale_frames(frames)                                                                                
-    frames = add_background(frames, bg_file)                                                                          
-    combine_frames(frames, gif_filename)                                                                           
-    print(gif_filename,'finished!')  
+# and performs the frame division, upscaling, background addition, and GIF creation.
+def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file, processed_files_count):
+    root, ext = os.path.splitext(sprite_file)
+    if ext.lower() not in ['.png', '.jpg', '.jpeg']:
+        return
+    gif_filename = root
+    print(gif_filename, 'processing...')
+    full_path = os.path.join(sprite_sheet_folder, sprite_file)
+    frames = divide_sprite_sheet(full_path)
+    frames = upscale_frames(frames)
+    frames = add_background(frames, bg_file)
+    combine_frames(frames, gif_filename)
+    print(gif_filename, 'finished!')
+    return 1   
 
 def divide_sprite_sheet(sprite_sheet_file):
     sprite_sheet = Image.open(sprite_sheet_file)
@@ -97,22 +99,6 @@ def combine_frames(frames, output_filename):
 
         ordered_frames[0].save(os.path.join('output',f'{output_filename}.gif'), save_all=True, append_images=ordered_frames[0:], loop=0)
 
-import os
-from multiprocessing import Pool
-
-def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
-    root, ext = os.path.splitext(sprite_file)
-    if ext.lower() not in ['.png', '.jpg', '.jpeg']:
-        return
-    gif_filename = root
-    print(gif_filename, 'processing...')
-    full_path = os.path.join(sprite_sheet_folder, sprite_file)
-    frames = divide_sprite_sheet(full_path)
-    frames = upscale_frames(frames)
-    frames = add_background(frames, bg_file)
-    combine_frames(frames, gif_filename)
-    print(gif_filename, 'finished!')
-
 if __name__ == '__main__':
     isExist = os.path.exists('output')
     if not isExist:
@@ -120,10 +106,32 @@ if __name__ == '__main__':
     bg_file, sprite_sheet_folder = get_user_input()
     sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
 
+    # Start the timer                                                                                                                                                                                                                                                           
+    time_start = time.time()
+
     # Create a pool of processes
     pool = Pool()
 
     # Use the pool to process the sprite sheet files in parallel
-    pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file) for sprite_file in sprite_sheet_files])
+    processed_files_count = 0
+    results = pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file, processed_files_count) for sprite_file in sprite_sheet_files]) 
+    processed_files_count = sum(results)
 
-    print('All sprites processed, please check your output folder!')
+    # Close the pool and wait for the work to finish                                                                                                                                                                                                                            
+    pool.close()                                                                                                                                                                                                                                                                
+    pool.join()                                                                                                                                                                                                                                                                 
+                                                                                                                                                                                                                                                                                
+    # End the timer                                                                                                                                                                                                                                                             
+    time_end = time.time()                                                                                                                                                                                                                                                      
+                                                                                                                                                                                                                                                                                
+    # Calculate the elapsed time                                                                                                                                                                                                                                                
+    elapsed_time = time_end - time_start 
+    average = elapsed_time // processed_files_count   
+    print()
+    print(f'All sprites processed, please check your output folder!')
+    if elapsed_time < 60:                                                                                                                                                                                                                                                 
+        print(f'It took {int(elapsed_time)} seconds to process {processed_files_count} sprite sheets (avg. {average:.2f} each).')                                                                                                                                                                    
+    else:                                                                                                                                                                                                                                                                          
+        minutes = elapsed_time // 60                                                                                                                                                                                                                                               
+        seconds = elapsed_time % 60                                                                                                                                                                                                                                             
+        print(f'It took {int(minutes)} minutes and {int(seconds)} seconds to process {processed_files_count} sprite sheets (avg. {average:.2f}s each).') 
