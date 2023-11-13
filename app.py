@@ -7,6 +7,8 @@ import time
 # Asks user to input the paths and returns them
 def get_user_input():
     while True:
+        print('Welcome to the LooperLands GIF Generator!')
+        print()
         bg_file = input('Please enter the path to the background file: ')
         if not os.path.exists(bg_file):
             print("This path does not exist")
@@ -23,10 +25,10 @@ def get_user_input():
 
 # Define a new function that takes a sprite sheet file as input                                                    
 # and performs the frame division, upscaling, background addition, and GIF creation.
-def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file, processed_files_count):
+def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
     root, ext = os.path.splitext(sprite_file)
     if ext.lower() not in ['.png', '.jpg', '.jpeg']:
-        return
+        return 0
     gif_filename = root
     print(gif_filename, 'processing...')
     full_path = os.path.join(sprite_sheet_folder, sprite_file)
@@ -114,7 +116,7 @@ if __name__ == '__main__':
 
     # Use the pool to process the sprite sheet files in parallel
     processed_files_count = 0
-    results = pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file, processed_files_count) for sprite_file in sprite_sheet_files]) 
+    results = pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file) for sprite_file in sprite_sheet_files]) 
     processed_files_count = sum(results)
 
     # Close the pool and wait for the work to finish                                                                                                                                                                                                                            
