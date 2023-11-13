@@ -31,9 +31,7 @@ def process_sprite_sheet(sprite_file):
     full_path = os.path.join(sprite_sheet_folder, sprite_file)                                                     
     frames = divide_sprite_sheet(full_path)                                                                        
     frames = upscale_frames(frames)                                                                                
-    frames = add_background(frames, bg_file)                                                                       
-    if debug:                                                                                                      
-        print('Number of frames:', len(frames))  # make gif filename same as spritesheet filename but with .gif    
+    frames = add_background(frames, bg_file)                                                                          
     combine_frames(frames, gif_filename)                                                                           
     print(gif_filename,'finished!')  
 
@@ -113,8 +111,6 @@ def process_sprite_sheet(sprite_file):
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
     frames = add_background(frames, bg_file)
-    if debug:
-        print('Number of frames:', len(frames))
     combine_frames(frames, gif_filename)
     print(gif_filename, 'finished!')
 
@@ -132,8 +128,6 @@ def process_sprite_sheet(sprite_file, sprite_sheet_folder):
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
     frames = add_background(frames, bg_file)
-    if debug:
-        print('Number of frames:', len(frames))
     combine_frames(frames, gif_filename)
     print(gif_filename, 'finished!')
 
@@ -151,8 +145,6 @@ def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
     frames = add_background(frames, bg_file)
-    if debug:
-        print('Number of frames:', len(frames))
     combine_frames(frames, gif_filename)
     print(gif_filename, 'finished!')
 
@@ -160,7 +152,7 @@ def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
 import os
 from multiprocessing import Pool
 
-def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file, debug):
+def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
     root, ext = os.path.splitext(sprite_file)
     if ext.lower() not in ['.png', '.jpg', '.jpeg']:
         return
@@ -170,8 +162,6 @@ def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file, debug):
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
     frames = add_background(frames, bg_file)
-    if debug:
-        print('Number of frames:', len(frames))
     combine_frames(frames, gif_filename)
     print(gif_filename, 'finished!')
 
@@ -179,33 +169,7 @@ if __name__ == '__main__':
     isExist = os.path.exists('output')
     if not isExist:
         os.makedirs('output')
-    if '--debug' in sys.argv:
-        bg_file = 'bg.png'
-        sprite_sheet_folder = 'sprites_folder'
-        debug = True
-    else:
-        bg_file, sprite_sheet_folder = get_user_input()
-        debug = False
-    sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
-
-    # Create a pool of processes
-    pool = Pool()
-
-    # Use the pool to process the sprite sheet files in parallel
-    pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file, debug) for sprite_file in sprite_sheet_files])
-
-    print('All sprites processed, please check your output folder!')
-
-    isExist = os.path.exists('output')
-    if not isExist:
-        os.makedirs('output')
-    if '--debug' in sys.argv:
-        bg_file = 'bg.png'
-        sprite_sheet_folder = 'sprites_folder'
-        debug = True
-    else:
-        bg_file, sprite_sheet_folder = get_user_input()
-        debug = False
+    bg_file, sprite_sheet_folder = get_user_input()
     sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
 
     # Create a pool of processes
@@ -219,33 +183,35 @@ if __name__ == '__main__':
     isExist = os.path.exists('output')
     if not isExist:
         os.makedirs('output')
-    if '--debug' in sys.argv:
-        bg_file = 'bg.png'
-        sprite_sheet_folder = 'sprites_folder'
-        debug = True
-    else:
-        bg_file, sprite_sheet_folder = get_user_input()
-        debug = False
+    bg_file, sprite_sheet_folder = get_user_input()
     sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
 
     # Create a pool of processes
     pool = Pool()
 
     # Use the pool to process the sprite sheet files in parallel
-    pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder) for sprite_file in sprite_sheet_files])
+    pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file) for sprite_file in sprite_sheet_files])
 
     print('All sprites processed, please check your output folder!')
 
     isExist = os.path.exists('output')
     if not isExist:
         os.makedirs('output')
-    if '--debug' in sys.argv:
-        bg_file = 'bg.png'
-        sprite_sheet_folder = 'sprites_folder'
-        debug = True
-    else:
-        bg_file, sprite_sheet_folder = get_user_input()
-        debug = False
+    bg_file, sprite_sheet_folder = get_user_input()
+    sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
+
+    # Create a pool of processes
+    pool = Pool()
+
+    # Use the pool to process the sprite sheet files in parallel
+    pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder,bg_file) for sprite_file in sprite_sheet_files])
+
+    print('All sprites processed, please check your output folder!')
+
+    isExist = os.path.exists('output')
+    if not isExist:
+        os.makedirs('output')
+    bg_file, sprite_sheet_folder = get_user_input()
     sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))
 
     # Create a pool of processes
@@ -258,14 +224,8 @@ if __name__ == '__main__':
                                                                                          
     isExist = os.path.exists('output')                                                                             
     if not isExist:                                                                                                
-        os.makedirs('output')                                                                                      
-    if '--debug' in sys.argv:                                                                                      
-        bg_file = 'bg.png'                                                                                         
-        sprite_sheet_folder = 'sprites_folder'                                                                     
-        debug = True                                                                                               
-    else:                                                                                                          
-        bg_file, sprite_sheet_folder = get_user_input()                                                            
-        debug = False                                                                                              
+        os.makedirs('output')                                                                                                                                                                                            
+    bg_file, sprite_sheet_folder = get_user_input()                                                                                                                                                         
     sprite_sheet_files = sorted(os.listdir(sprite_sheet_folder))                                                           
                                                                                                                     
     # Create a pool of processes                                                                                   
