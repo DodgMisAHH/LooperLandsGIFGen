@@ -95,7 +95,7 @@ def combine_frames(frames, output_filename):
         elif action == 'downward idle':
             ordered_frames.extend(frames[40:42])
 
-        ordered_frames[0].save(os.path.join('output',f'{output_filename}.gif'), save_all=True, append_images=ordered_frames[0:], loop=1)
+        ordered_frames[0].save(os.path.join('output',f'{output_filename}.gif'), save_all=True, append_images=ordered_frames[0:], loop=0)
 
 import os
 from multiprocessing import Pool
