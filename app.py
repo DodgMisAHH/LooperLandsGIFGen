@@ -20,7 +20,7 @@ def get_user_input():
     print('Processing your sprites, please wait...')
     return bg_file, sprite_sheet_folder
 
- # Define a new function that takes a sprite sheet file as input                                                    
+# Define a new function that takes a sprite sheet file as input                                                    
 # and performs the frame division, upscaling, background addition, and GIF creation.                               
 def process_sprite_sheet(sprite_file):                                                                             
     root, ext = os.path.splitext(sprite_file)                                                                      
