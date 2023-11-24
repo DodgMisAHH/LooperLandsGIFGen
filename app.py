@@ -104,17 +104,17 @@ def create_gif_with_background(frames, bg_file, output_filename, frame_duration=
     print(output_filename, 'finished!')
 
 
-def process_sprite_sheet(sprite_file, sprite_sheet_folder):
+def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
     root, ext = os.path.splitext(sprite_file)
     if ext.lower() not in ['.png', '.jpg', '.jpeg']:
         print(f"File {sprite_file} has unsupported extension and will be skipped.")
-        return None, None  # Updated this line to return a tuple
+        return None
     gif_filename = root
     full_path = os.path.join(sprite_sheet_folder, sprite_file)
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
-    # Skipping the add background step, will be done later when creating the GIF
-    return frames, gif_filename
+    create_gif_with_background(frames, bg_file, gif_filename)  # Create the GIF with background
+    return gif_filename
 
 if __name__ == '__main__':
     isExist = os.path.exists('output')
@@ -130,21 +130,16 @@ if __name__ == '__main__':
     pool = Pool()
 
     # Use the pool to process the sprite sheet files in parallel
-    results = pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder) for sprite_file in sprite_sheet_files]) 
-    pool.close() 
-    pool.join() 
-
-    # Generate the GIFs with the background for processed frames
-    for frames, gif_filename in results:
-        if frames and gif_filename:  # Updated the condition to check for both values
-            create_gif_with_background(frames, bg_file, gif_filename)
+    results = pool.starmap(process_sprite_sheet, [(sprite_file, sprite_sheet_folder, bg_file) for sprite_file in sprite_sheet_files])
+    pool.close()
+    pool.join()
 
     # End the timer
-    time_end = time.time() 
+    time_end = time.time()
 
     # Calculate the elapsed time
-    elapsed_time = time_end - time_start 
-    processed_files_count = len([result for result in results if result[0]])
+    elapsed_time = time_end - time_start
+    processed_files_count = sum(1 for result in results if result is not None)
     average = elapsed_time / processed_files_count if processed_files_count else 0
     print()
     print(f'All sprites processed, please check your output folder!')
