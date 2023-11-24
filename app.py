@@ -3,6 +3,7 @@ import os
 import re
 from PIL import Image
 from multiprocessing import Pool
+import subprocess
 import time
 
 # Asks user to input the paths and returns them
@@ -21,7 +22,9 @@ def get_user_input():
             print("This path does not exist")
         else:
             break
+    print()
     print('Processing your sprites, please wait...')
+    print()
     return bg_file, sprite_sheet_folder
 
 def natural_sort_key(s):
@@ -101,19 +104,17 @@ def create_gif_with_background(frames, bg_file, output_filename, frame_duration=
         loop=0,
         duration=frame_duration
     )
-    print(output_filename, 'finished!')
-
 
 def process_sprite_sheet(sprite_file, sprite_sheet_folder, bg_file):
     root, ext = os.path.splitext(sprite_file)
     if ext.lower() not in ['.png', '.jpg', '.jpeg']:
-        print(f"File {sprite_file} has unsupported extension and will be skipped.")
         return None
     gif_filename = root
     full_path = os.path.join(sprite_sheet_folder, sprite_file)
     frames = divide_sprite_sheet(full_path)
     frames = upscale_frames(frames)
     create_gif_with_background(frames, bg_file, gif_filename)  # Create the GIF with background
+    print(f'\r{gif_filename} processed.',end='', flush=True)
     return gif_filename
 
 if __name__ == '__main__':
@@ -142,10 +143,21 @@ if __name__ == '__main__':
     processed_files_count = sum(1 for result in results if result is not None)
     average = elapsed_time / processed_files_count if processed_files_count else 0
     print()
-    print(f'All sprites processed, please check your output folder!')
+    print()
+    print(f'All sprites processed, please check the output folder!')
     if elapsed_time < 60:
         print(f'It took {int(elapsed_time)} seconds to process {processed_files_count} sprite sheets (avg. {average:.2f} each).')
     else:
         minutes = elapsed_time // 60
         seconds = elapsed_time % 60
         print(f'It took {int(minutes)} minutes and {int(seconds)} seconds to process {processed_files_count} sprite sheets (avg. {average:.2f}s each).')
+    print()
+
+    output_folder_path = os.path.join(os.getcwd(), 'output')
+
+    if sys.platform == "win32": # if the script is running on Windows
+        os.startfile(output_folder_path)
+    elif sys.platform == "darwin": # if the script is running on a Mac
+        subprocess.run(["open", output_folder_path])
+    else: # if the script is running on Linux
+        subprocess.run(["xdg-open", output_folder_path])
